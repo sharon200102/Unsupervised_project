@@ -1,1 +1,27 @@
-Documentation
+Documentation:
+
+Function:dist_of_cols.
+description: Plots the distribution of all columns by the shape and size inserted as arguments.
+
+Input:
+col_list:A list of column name's, that their distribution will be plotted.
+data: A data frame shaped, the names in col_list should apper in the data.
+figsize:Tuple shaped,(10,10) is the size of "distribution_of_all_colums" graph.
+nrows,ncols: integers,the gird that will be created by the function will have nrows rows,and ncols columns.
+savefig,name_of_file: if savefig equals to 1 a file with the name inserted will be created with the figure in it.
+
+Output: No output.
+
+Function: dis_by_cat
+description:Plots the different distributions of a column inserted based on a categorical feature.
+
+Input:
+data: A data frame shaped, cat_name,col_name should apper as columns in the data.
+col_name:String shaped, The coulmn distibution will be ploted based on cat_name column.
+cat_name: String shaped categorical column.
+figsize:Tuple shaped, the size of the figure that will be created.
+savefig,name_of_file: if savefig equals to 1 a file with the name inserted will be created with the figure in it.
+
+Output: No output.
+
+
