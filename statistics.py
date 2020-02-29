@@ -1,27 +1,26 @@
 import dataframe as df
 import pandas as pd
 import numpy as np
-data = pd.read_csv('creditcard.csv')
 
 
-# the function gets vector that present a deal and return 1 if its deception and 0 if its not
-def is_decption(vec):
-    if vec["Class"] == 0:
+# the function gets vector that present a deal and a name of a column and return 1 if its deception and 0 if its not
+def is_decption(vec, name):
+    if vec[name] == 0:
         return 0
     else:
         return 1
 
 
-# the function gets a dataset and return the percent of the clean deals and the deceptionds
-def percent(dataset):
+# the function gets a dataset and a name of a column return the percent of the clean deals and the deceptionds
+def percent(dataset, name):
     deceptions = 0
     clean_deals = 0
-    for i in range(len(dataset["Class"])):
-        if is_decption(dataset.loc[i]) == 0:
+    for i in range(len(dataset[name])):
+        if is_decption(dataset.loc[i], name) == 0:
             clean_deals = clean_deals + 1
         else:
             deceptions = deceptions + 1
-    return [clean_deals / len(dataset["Class"]), deceptions/ len(dataset["Class"])]
+    return [clean_deals / len(dataset[name]), deceptions/ len(dataset["Class"])]
 
 
 # the function gets a dataset and return his covarince
@@ -29,15 +28,13 @@ def all_cov(dataset):
     return dataset.cov()
 
 
-# the function gets a dataset and return array with the covariance between the amount column and the all others
-def amount_cov(dataset):
+# the function gets a dataset and the name of a column return array with the covariance between the name (amount) column and the all others
+def amount_cov(dataset, name):
     arr = []
     for coll in dataset.columns:
-        d = {"Amount": dataset["Amount"], coll: dataset[coll]}
+        d = {name: dataset[name], coll: dataset[coll]}
         df = pd.DataFrame(data=d)
         arr.append(df.cov())
     return arr
-
-
 
 
