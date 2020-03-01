@@ -25,3 +25,17 @@ savefig,name_of_file: if savefig equals to 1 a file with the name inserted will 
 Output: No output.
 
 
+Statistics:
+  Percent function : the function gets a dataset and a name of a column and return the percent of the clean deals and the deceptionds.
+  all_cov function: the function gets a dataset and return his covariance
+  amount_cov function: the function gets a dataset and a name of a column and return the covariance between this column to the all others.
+
+
+Data Loader:
+  This python file is here to load our data as we wants to get it to our next step (PCA) and we do it by some code:
+  Kick_anom function: the function wants to kick the anomalies of a column.Therefor the function gets a dataset, name of the column
+    and a limit of the numbers in this columns and the function return the dataset without the rows that the value in this column is 
+    bigger than the limit. 
+  In addition, in this python file we kick out the column of the class and normalize the data by zscore or minmax normalization.
+
+
