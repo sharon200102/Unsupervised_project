@@ -39,3 +39,14 @@ Data Loader:
   In addition, in this python file we kick out the column of the class and normalize the data by zscore or minmax normalization.
 
 
+Function: decompose
+description:# function for decomposing the data to fewer dimensions using the constructor function inserted.
+
+
+Input:
+data: A data frame shaped.
+dec_func: the constructor function of the decomposition object.
+n_components: the number of dimensions the data will be reduced to.
+savefig,name_of_file: if savefig equals to 1 a file with the name inserted will be created with scatterplot in it.
+
+Output: the decomposition object and the decomposed data. as a tuple in this order.
