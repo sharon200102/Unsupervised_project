@@ -18,6 +18,5 @@ def kick_anom(dataset, coll_name, limit):
     return dataset
 
 
-data = kick_anom(data, "Amount", 5000)
 data = data.drop(columns=["Class"])
 data = minmax_norm(data)

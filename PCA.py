@@ -20,5 +20,4 @@ def pca_analysis(data,n_components=2,savefig=0,name_of_file=None):
             ax=fig.add_axes()
             sns.scatterplot(principalDf['principal component 1'],principalDf['principal component 2'],data=data,ax=ax)
             fig.savefig(name_of_file)
-    return principalDf
-print(pca_analysis(ld.data,n_components=2,savefig=1,name_of_file='2d_pca_plot.png'))
+    return pca,principalDf
