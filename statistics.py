@@ -38,3 +38,9 @@ def amount_cov(dataset, name):
     return arr
 
 
+def histogram_intersection(a, b):
+    v = np.minimum(a, b).sum().round(decimals=1)
+    return v
+
+
+df = data.corr(method=histogram_intersection)
