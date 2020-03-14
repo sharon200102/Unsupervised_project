@@ -37,3 +37,8 @@ def amount_cov(dataset, name):
         arr.append(df.cov())
     return arr
 
+
+def corr(data):
+    df = data.corr()
+    return df.min(), df[df < 1].max()
+
