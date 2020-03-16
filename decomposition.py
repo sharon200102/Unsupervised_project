@@ -1,29 +1,17 @@
 import pandas as pd
 import numpy as np
+import load_data as ld
+from visualization import scatterdDfVisualization
+from sklearn.feature_selection import mutual_info_regression
 from sklearn.decomposition import PCA, FastICA
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import load_data as ld
-import seaborn as sns
-from sklearn.feature_selection import mutual_info_regression
 # function for decomposing the data to fewer dimensions using the constructor function inserted.
-def decompose(data,dec_func,n_components=2,c=None,savefig=0,name_of_file=None):
+def decompose(data,dec_func,n_components=2):
     dec_obj = dec_func(n_components=n_components)
     dec_obj.fit(data)
     components = dec_obj.fit_transform(data)
     #changing the columns names.
     componentsDF = pd.DataFrame(data=components, columns=list(map(lambda num:'component '+str(num),range(1,n_components+1))))
-    #visualization
-    if savefig==1:
-        fig = plt.figure()
-        if n_components==3:
-            ax=Axes3D(fig)
-            ax.scatter(componentsDF['component 1'],componentsDF['component 2'],componentsDF['component 3'],c=c)
-            fig.savefig(name_of_file)
-        if n_components==2:
-            ax=fig.add_axes()
-            sns.scatterplot(componentsDF['component 1'],componentsDF['component 2'],data=data,hue=c,ax=ax)
-            fig.savefig(name_of_file)
     return dec_obj,componentsDF
 #The function returns the most importent fetures in the orignal_data
 def importent_feat(dec_obj,orignal_data_columns):
@@ -31,4 +19,15 @@ def importent_feat(dec_obj,orignal_data_columns):
     most_important_feat = [np.abs(dec_obj.components_[i]).argmax() for i in range(n_components)]
     important_feat_names = [orignal_data_columns[index] for index in most_important_feat]
     return  important_feat_names
+"""
+fig=plt.figure()
+normalized_data=ld.minmax_norm(ld.data)
+componentsDF=decompose(normalized_data,FastICA,n_components=3)[1]
+ax=scatterdDfVisualization(componentsDF,fig,c=ld.class_col)
+ax.set_xlabel('First component')
+ax.set_ylabel('Second component')
+ax.set_zlabel('Third component')
+ax.set_title('3D ICA by class analysis')
+plt.show()
+"""
 

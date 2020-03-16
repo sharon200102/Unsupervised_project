@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
+
 # Plots the distribution of all columns by the shape and size inserted as arguments.
 
 def dist_of_cols(col_list,data,figsize,nrows=1,ncols=1,savefig=0,name_of_file=None):
@@ -31,7 +33,15 @@ def dis_by_cat(data,col_name,cat_name,figsize,savefig=0,name_of_file=None):
       g.savefig(name_of_file)
   plt.tight_layout()
   plt.show()
-
+def scatterdDfVisualization(df,fig,**kwargs):
+    n_components=df.shape[1]
+    if n_components == 3:
+        ax = Axes3D(fig)
+        ax.scatter(df.iloc[:,0], df.iloc[:,1], df.iloc[:,2],**kwargs)
+    if n_components == 2:
+        ax = fig.add_subplot()
+        sns.scatterplot(df.iloc[:,0], df.iloc[:,1], data=df,ax=ax)
+    return ax
 """
     sns.barplot(x='Class',y='Amount',data=data )
     sns.stripplot(x="Class", y="Amount", data=data)

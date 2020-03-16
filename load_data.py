@@ -11,7 +11,7 @@ def minmax_norm(df):
 def zscore_norm(df):
     return (df - df.mean()) / df.std()
 
-def Robust_std(df): 
+def Robust_std(df):
     transformer = RobustScaler().fit(df)
     return pd.DataFrame(transformer.transform(df),columns=df.columns)
 
@@ -20,6 +20,7 @@ def kick_anom(dataset, coll_name, limit):
         if dataset.loc[i][coll_name] > limit:
             dataset = dataset.drop(i)
     return dataset
+
 data = pd.read_csv('creditcard.csv')
 class_col=data['Class']
 data = data.drop(columns=["Class"])

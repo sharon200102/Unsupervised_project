@@ -10,12 +10,11 @@ import matplotlib.pyplot as plt
 from sklearn.neighbors.kde import KernelDensity
 from sklearn.cluster import KMeans
 
-
 data=ld.data
 normalized_data=ld.minmax_norm(data)
 vector_size=len(ld.data.columns)
 lr=0.001
-n_epochs=7
+n_epochs=5
 n_cluster=3
 class autoencoder(nn.Module):
     def __init__(self, vector_size):
@@ -94,10 +93,13 @@ model.eval()
 for x in tensor_data:
     losses.append(criterion(model(x),x).item())
 fitkmeans(losses,3)
+"""
 #set title !!
-#sns.stripplot(x =ld.class_col,y=losses)
+sns.barplot(x=ld.class_col,y=losses)
+plt.title('Auto-encoder-anomaly-detection-Average-loss')
+plt.ylabel('Average loss')
 plt.show()
-
+"""
 
 
 

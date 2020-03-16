@@ -13,7 +13,6 @@ figsize=(15,15)
 data=ld.data
 n_clusters=2
 n_components=3
-eps=0.15
 def create_silhouette(data,prediction,n_clusters,ax):
     y_lower = 10
     sample_silhouette_values = silhouette_samples(data, prediction)
@@ -38,7 +37,6 @@ def create_silhouette(data,prediction,n_clusters,ax):
     return ax
 
 kmeans = KMeans(n_clusters=n_clusters)
-dbscan=DBSCAN(eps)
 gmm = GaussianMixture(n_components=n_clusters)
 clustring_algorithms=(('Kmeans',kmeans),('GMM',gmm))
 normalization=[('MiniMax',ld.minmax_norm),('Zscore',ld.zscore_norm),('RobustScaler',ld.Robust_std)]
