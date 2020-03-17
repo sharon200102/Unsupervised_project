@@ -9,6 +9,8 @@ import load_data as ld
 import matplotlib.pyplot as plt
 from sklearn.neighbors.kde import KernelDensity
 from sklearn.cluster import KMeans
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
 
 data=ld.data
 normalized_data=ld.minmax_norm(data)
@@ -35,6 +37,10 @@ class autoencoder(nn.Module):
     def forward(self,input):
         input=self.encoder(input)
         input=self.decoder(input)
+        return input
+    
+    def Dimensions(self, input):
+        input=self.encoder(input)
         return input
 
 
@@ -74,7 +80,20 @@ def fitkmeans(X,n_clusters=3):
     sns.stripplot(y_pred,X,hue=ld.class_col)
     plt.show()
 
-
+    
+def auto_for_dimensions(arr, n_cluster,savefig=0, name_of_fig=None):
+    fig_arr = np.zeros((len(ld.data), n_cluster))
+    for i in range(len(ld.data)):
+        for j in range(n_cluster):
+            fig_arr[i][j] = arr[i][j].float()
+    if savefig == 1:
+        fig = plt.figure()
+        ax = Axes3D(fig)
+        principalDf = fig_arr
+        ax.scatter(principalDf[:, 0], principalDf[:, 1], principalDf[:, 2], c=ld.class_col)
+        fig.savefig(name_of_fig)
+    return fig_arr
+    
 model=autoencoder(vector_size)
 criterion = nn.MSELoss()
 tensor_data=torch.from_numpy(normalized_data.to_numpy()).float()
@@ -83,9 +102,11 @@ train_step=make_train_step(model,criterion,optim.Adam(model.parameters(), lr=lr)
 losses = []
 """Training the model"""
 for epoch in range(n_epochs):
+    new_arr = []
     print("in epoch "+str(epoch))
     for x in tensor_data:
         losses.append(train_step(x,x))
+        new_arr.append(model.Dimensions(x))
     fitkmeans(losses,3)
     losses=[]
 model.eval()
@@ -99,6 +120,7 @@ sns.barplot(x=ld.class_col,y=losses)
 plt.title('Auto-encoder-anomaly-detection-Average-loss')
 plt.ylabel('Average loss')
 plt.show()
+print(auto_for_dimensions(new_arr, n_cluster, savefig=1, name_of_fig="auto encoder"))
 """
 
 
