@@ -11,17 +11,21 @@ from sklearn.neighbors.kde import KernelDensity
 from sklearn.cluster import KMeans
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
+from sklearn.ensemble import IsolationForest
+from sklearn.metrics import confusion_matrix
 
-data=ld.data
-normalized_data=ld.minmax_norm(data)
+
+normalized_data=ld.zscore_norm(ld.data)
+# Transform the 0-1 labels to 1-(-1) labels because of the Isolation forest
+anomaly_labels=ld.class_col.apply(lambda x: -2*x+1)
 vector_size=len(ld.data.columns)
 lr=0.001
-n_epochs=5
-n_cluster=3
+n_epochs=1
+# The neural net that will preform the auto-encoding
 class autoencoder(nn.Module):
     def __init__(self, vector_size):
         super(autoencoder, self).__init__()
-        """the first part of the auto-encoder two layers, and a relu function between them"""
+        """The first part of the auto-encoder two layers, and a relu function between them"""
         self.encoder=nn.Sequential(
         nn.Linear(vector_size,6),
         nn.ReLU(True),
@@ -93,29 +97,83 @@ def auto_for_dimensions(arr, n_cluster,savefig=0, name_of_fig=None):
         ax.scatter(principalDf[:, 0], principalDf[:, 1], principalDf[:, 2], c=ld.class_col)
         fig.savefig(name_of_fig)
     return fig_arr
-    
+
+
+"""
+FOR THE ISOLATION FOREST ANOMALY DETECTION
+"""
+"""
+#creating and fitting the Isolation Forest on the data
+clf = IsolationForest(random_state=1)
+y_pred=clf.fit_predict(normalized_data)
+cm=confusion_matrix(anomaly_labels,y_pred)
+cm_df=pd.DataFrame(cm,index=['Fraud','Legal'],columns=['Predicted_fraud','Predicted_legal'])
+
+recall = cm[0, 0] / sum(cm[0, :])
+#Confusion Matrix
+ax=sns.heatmap(cm_df, annot=True, fmt='g',cmap='Blues')
+bottom, top = ax.get_ylim()
+ax.set_ylim(bottom + 0.5, top - 0.5)
+plt.title('Confusion Matrix of Isolation Forest')
+plt.xlabel('The fraud recall is: '+str(recall)[:4])
+plt.show()
+"""
+
+
+
+
+
+
+
+
+
+
+
+"""
+FOR THE AUTO-ENCODER ANOMALY DETECTION
+"""
+
+"""
+# creating the auto-encoder and transforming the data to tensor format
 model=autoencoder(vector_size)
 criterion = nn.MSELoss()
 tensor_data=torch.from_numpy(normalized_data.to_numpy()).float()
 
 train_step=make_train_step(model,criterion,optim.Adam(model.parameters(), lr=lr))
 losses = []
-"""Training the model"""
+#training the model on the whole data.
 for epoch in range(n_epochs):
     new_arr = []
     print("in epoch "+str(epoch))
     for x in tensor_data:
-        losses.append(train_step(x,x))
+        train_step(x,x)
         new_arr.append(model.Dimensions(x))
-    fitkmeans(losses,3)
-    losses=[]
 model.eval()
-"""plot a graph also after training"""
 for x in tensor_data:
     losses.append(criterion(model(x),x).item())
-fitkmeans(losses,3)
+Selecte ten percent of the data with the highest loss as anomalies 
+anomaly_index=np.argsort(losses)[-1*int(len(tensor_data)/10):]
+print(-1*int(len(tensor_data)/10))
+y_pred=np.ones(len(tensor_data))
+y_pred[anomaly_index]=-1
+print(y_pred)
+
+# confusion_matrix
+cm=confusion_matrix(anomaly_labels,y_pred)
+cm_df=pd.DataFrame(cm,index=['Fraud','Legal'],columns=['Predicted_fraud','Predicted_legal'])
+recall = cm[0, 0] / sum(cm[0, :])
+ax=sns.heatmap(cm_df, annot=True, fmt='g',cmap='Blues')
+bottom, top = ax.get_ylim()
+ax.set_ylim(bottom + 0.5, top - 0.5)
+plt.title('Confusion Matrix of Auto-encoder')
+plt.xlabel('The fraud recall is: '+str(recall)[:4])
+plt.show()
 """
-#set title !!
+
+"""
+Plots of graphs
+"""
+"""
 sns.barplot(x=ld.class_col,y=losses)
 plt.title('Auto-encoder-anomaly-detection-Average-loss')
 plt.ylabel('Average loss')
