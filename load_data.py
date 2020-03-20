@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import RobustScaler
+from sklearn.utils import shuffle
 
 
 
@@ -20,6 +21,24 @@ def kick_anom(dataset, coll_name, limit):
         if dataset.loc[i][coll_name] > limit:
             dataset = dataset.drop(i)
     return dataset
+# dic should look as follows {class_num:desired quantity of rows from that specified class}
+# The dictionary returned will look as follows {class_num: dataframe with quantity inserted of rows of class_num}
+def divide_data(data,labels,dic):
+    outdic={}
+    for key in dic:
+        key_class_df=shuffle(data[labels==key])
+        outdic[key]=key_class_df.head(dic[key])
+
+    return outdic
+#dic should look as follows,{class_num:dataframe}
+# returns a concatenate dataframe of all values in dic and a corresponding labels
+def concatenate_data(dic):
+    labels=[]
+    for key in dic:
+        labels+=len(dic[key])*[key]
+    return pd.concat(dic.values()),np.array(labels)
+
+
 
 data = pd.read_csv('creditcard.csv')
 class_col=data['Class']

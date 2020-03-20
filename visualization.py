@@ -5,9 +5,8 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.decomposition import PCA, KernelPCA
 from sklearn.manifold import TSNE
-from sklearn.utils import shuffle
-dataset = pd.read_csv('creditcard.csv')
-
+import load_data as ld
+normalized_data=ld.minmax_norm(ld.data)
 
 # Plots the distribution of all columns by the shape and size inserted as arguments.
 
@@ -45,45 +44,10 @@ def scatterdDfVisualization(df,fig,**kwargs):
         ax.scatter(df.iloc[:,0], df.iloc[:,1], df.iloc[:,2],**kwargs)
     if n_components == 2:
         ax = fig.add_subplot()
-        sns.scatterplot(df.iloc[:,0], df.iloc[:,1], data=df,ax=ax)
+        sns.scatterplot(df.iloc[:,0], df.iloc[:,1], data=df,ax=ax,**kwargs)
     return ax
 """
     sns.barplot(x='Class',y='Amount',data=data )
     sns.stripplot(x="Class", y="Amount", data=data)
 """
 
-"""
-making TSNE
-"""
-def make_data_for_TSNE(data):
-    df = data[data['Class'] == 1]
-    zf = data[data['Class'] == 0]
-    zf = shuffle(zf, random_state=1)
-    s = len(df)
-    zf = zf.head(s)
-    frames = [df, zf]
-    new_data = pd.concat(frames)
-    new_data = shuffle(new_data, random_state=1)
-    return new_data
-
-
-def TSNE_analysis(data, n_components=2, savefig=0, name_of_file=None):
-    tsne_data = make_data_for_TSNE(data)
-    tsne = TSNE(n_components=n_components, perplexity=3)
-    tsne.fit(tsne_data)
-    principalComponents = tsne.fit_transform(tsne_data)
-    principalDf = pd.DataFrame(data=principalComponents, columns=list(map(lambda num : 'principal component '+str(num), range(1, n_components+1))))
-    if savefig == 1:
-        fig = plt.figure()
-        ax = scatterdDfVisualization(principalDf, fig, c=tsne_data['Class'])
-        ax.set_xlabel('First component')
-        ax.set_ylabel('Second component')
-        ax.set_zlabel('Third component')
-        ax.set_title('3D TSNE plot')
-        plt.show()
-        fig.savefig(name_of_file)
-    return tsne, principalDf
-
-"""
-TSNE_analysis(dataset, n_components=3, savefig=1, name_of_file="3D_TSNE_analysis_plot")
-"""
