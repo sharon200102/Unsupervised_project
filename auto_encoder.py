@@ -48,6 +48,7 @@ class autoencoder(nn.Module):
         return input
 
 
+
 def make_train_step(model, loss_fn, optimizer):
     # Builds function that performs a step in the train loop
     def train_step(x, y):
