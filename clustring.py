@@ -17,6 +17,8 @@ n_clusters=2
 n_components=3
 def create_silhouette(data,prediction,n_clusters,ax):
     y_lower = 10
+    silhouette_avg = silhouette_score(data, prediction)
+    print(" The silhouette_score is : " + str(silhouette_avg) + '\n')
     sample_silhouette_values = silhouette_samples(data, prediction)
     for i in range(n_clusters):
         ith_cluster_silhouette_values =sample_silhouette_values[prediction == i]
@@ -34,6 +36,7 @@ def create_silhouette(data,prediction,n_clusters,ax):
         y_lower = y_upper + 10  # 10 for the 0 samples
     ax.set_xlabel("The silhouette coefficient values")
     ax.set_ylabel("Cluster label")
+    ax.axvline(x=silhouette_avg, color="red", linestyle="--")
     ax.set_yticks([])  # Clear the yaxis labels / ticks
     ax.set_xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
     return ax
@@ -52,8 +55,8 @@ def cluster_components(y_pred,labels,dic):
 """
 
 """
-kmeans = KMeans(n_clusters=n_clusters)
-gmm = GaussianMixture(n_components=n_clusters)
+kmeans = KMeans(n_clusters=n_clusters,random_state=1)
+gmm = GaussianMixture(n_components=n_clusters,random_state=1)
 clustring_algorithms=(('Kmeans',kmeans),('GMM',gmm))
 normalization=[('MiniMax',ld.minmax_norm),('Zscore',ld.zscore_norm)]
 decomposition_algorithms=[('PCA', PCA), ('ICA', FastICA)]
@@ -65,7 +68,7 @@ i=0
 for norm_name, norm_fn in normalization:
     normalized_data=norm_fn(data)
     for dec_name,dec in decomposition_algorithms:
-        decomposed_data=decomposition.decompose(normalized_data,dec,n_components)[1]
+        decomposed_data=decomposition.decompose(normalized_data,dec,n_components,random_state=1)[1]
         for alg_name,alg in clustring_algorithms:
             alg.fit(decomposed_data)
             if hasattr(alg, 'labels_'):
@@ -76,8 +79,6 @@ for norm_name, norm_fn in normalization:
             create_silhouette(decomposed_data,y_pred,n_clusters,axes_dic[alg_name][i])
             axes_dic[alg_name][i].set_title("Silhouette analysis of "+norm_name+" - "+dec_name+" - "+alg_name)
             cluster_components(y_pred,labels,{0:'Legal transactions',1:'Fraud transactions'})
-            silhouette_avg = silhouette_score(decomposed_data, y_pred)
-            print(" The silhouette_score is : "+str(silhouette_avg)+'\n')
         i += 1
 
 
@@ -89,8 +90,8 @@ plt.show()
 """
 """
 normalized_data=ld.zscore_norm(data)
-decomposed_data=decomposition.decompose(normalized_data,PCA,n_components)[1]
-gmm = GaussianMixture(n_components=n_clusters)
+decomposed_data=decomposition.decompose(normalized_data,FastICA,n_components,random_state=1)[1]
+gmm = GaussianMixture(n_components=n_clusters,random_state=1)
 y_pred=gmm.fit_predict(decomposed_data)
 
 
@@ -100,7 +101,7 @@ cm_df=pd.DataFrame(cm,index=['Legal','Fraud'],columns=['Cluster 0 ','Cluster 1']
 ax=sns.heatmap(cm_df, annot=True, fmt='g',cmap='Blues')
 bottom, top = ax.get_ylim()
 ax.set_ylim(bottom + 0.5, top - 0.5)
-plt.title('Confusion Matrix of Zscore - PCA - GMM ')
+plt.title('Confusion Matrix of Zscore - ICA - GMM ')
 plt.show()
 """
 
