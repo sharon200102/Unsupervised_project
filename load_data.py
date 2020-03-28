@@ -26,7 +26,7 @@ def kick_anom(dataset, coll_name, limit):
 def divide_data(data,labels,dic):
     outdic={}
     for key in dic:
-        key_class_df=shuffle(data[labels==key])
+        key_class_df=shuffle(data[labels==key],random_state=1)
         outdic[key]=key_class_df.head(dic[key])
 
     return outdic
@@ -40,6 +40,6 @@ def concatenate_data(dic):
 
 
 
-data = pd.read_csv('creditcard.csv')
-class_col=data['Class']
-data = data.drop(columns=["Class"])
+original_data = pd.read_csv('creditcard.csv')
+class_col=original_data['Class']
+data = original_data.drop(columns=["Class"])

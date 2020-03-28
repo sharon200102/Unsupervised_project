@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
 
 # function for decomposing the data to fewer dimensions using the constructor function inserted.
-def decompose(data,dec_func,n_components=2):
-    dec_obj = dec_func(n_components=n_components)
+def decompose(data,dec_func,n_components=2,**kwargs):
+    dec_obj = dec_func(n_components=n_components,**kwargs)
     components = dec_obj.fit_transform(data)
     #changing the columns names.
     componentsDF = pd.DataFrame(data=components, columns=list(map(lambda num:'component '+str(num),range(1,n_components+1))))
@@ -28,27 +28,40 @@ def importent_feat(dec_obj,orignal_data_columns):
 normalized_data=ld.minmax_norm(ld.data)
 dic_of_data=ld.divide_data(normalized_data,ld.class_col,{0:492,1:492})
 data_for_tsne,labels=ld.concatenate_data(dic_of_data)
-componentsDF=decompose(data_for_tsne,TSNE,3)[1]
+componentsDF=decompose(data_for_tsne,TSNE,3,random_state=1)[1]
 fig=plt.figure()
 ax=scatterdDfVisualization(componentsDF,fig,c=labels)
 ax.set_xlabel('First component')
 ax.set_ylabel('Second component')
 ax.set_zlabel('Third component')
-ax.set_title('Tsne: An equal amount of frauds and legal transactions')
+ax.set_title('Tsne: An equal amount of frauds and legal transactions \n MinMax normalization')
 plt.show()
 """
 """
-----ICA----
+----ICA 3D----
 """
 """
 fig=plt.figure()
 normalized_data=ld.minmax_norm(ld.data)
-componentsDF=decompose(normalized_data,FastICA,n_components=3)[1]
+componentsDF=decompose(normalized_data,FastICA,n_components=3,random_state=1)[1]
 ax=scatterdDfVisualization(componentsDF,fig,c=ld.class_col)
 ax.set_xlabel('First component')
 ax.set_ylabel('Second component')
 ax.set_zlabel('Third component')
-ax.set_title('3D ICA by class analysis')
+ax.set_title('3D ICA by class analysis \n MinMax normalization')
 plt.show()
 """
 
+"""
+----ICA 2D----
+"""
+"""
+fig=plt.figure()
+normalized_data=ld.minmax_norm(ld.data)
+componentsDF=decompose(normalized_data,FastICA,n_components=2,random_state=1)[1]
+ax=scatterdDfVisualization(componentsDF,fig,hue=ld.class_col)
+ax.set_xlabel('First component')
+ax.set_ylabel('Second component')
+ax.set_title('2D PCA by class analysis \n MinMax normalization')
+plt.show()
+"""

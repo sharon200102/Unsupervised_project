@@ -6,7 +6,8 @@ from mpl_toolkits.mplot3d import Axes3D
 from sklearn.decomposition import PCA, KernelPCA
 from sklearn.manifold import TSNE
 import load_data as ld
-normalized_data=ld.minmax_norm(ld.data)
+data=ld.original_data
+normalized_data=ld.minmax_norm(data)
 
 # Plots the distribution of all columns by the shape and size inserted as arguments.
 
@@ -47,7 +48,13 @@ def scatterdDfVisualization(df,fig,**kwargs):
         sns.scatterplot(df.iloc[:,0], df.iloc[:,1], data=df,ax=ax,**kwargs)
     return ax
 """
-    sns.barplot(x='Class',y='Amount',data=data )
-    sns.stripplot(x="Class", y="Amount", data=data)
+ax=sns.barplot(x='Class',y='Amount',data=data)
+ax.set_xticklabels(['Legal transactions','Fraud transactions'])
+ax.set_title('Average_amount_per_class')
+ax.set_ylabel('Average amount')
+
+sns.stripplot(x="Class", y="Amount", data=data)
+plt.show()
+
 """
 

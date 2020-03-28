@@ -20,7 +20,7 @@ normalized_data=ld.zscore_norm(ld.data)
 anomaly_labels=ld.class_col.apply(lambda x: -2*x+1)
 vector_size=len(ld.data.columns)
 lr=0.001
-n_epochs=1
+n_epochs=3
 # The neural net that will preform the auto-encoding
 class autoencoder(nn.Module):
     def __init__(self, vector_size):
@@ -133,7 +133,6 @@ plt.show()
 """
 FOR THE AUTO-ENCODER ANOMALY DETECTION
 """
-
 """
 # creating the auto-encoder and transforming the data to tensor format
 model=autoencoder(vector_size)
@@ -152,7 +151,7 @@ for epoch in range(n_epochs):
 model.eval()
 for x in tensor_data:
     losses.append(criterion(model(x),x).item())
-Selecte ten percent of the data with the highest loss as anomalies 
+#Selecte ten percent of the data with the highest loss as anomalies
 anomaly_index=np.argsort(losses)[-1*int(len(tensor_data)/10):]
 print(-1*int(len(tensor_data)/10))
 y_pred=np.ones(len(tensor_data))
@@ -175,11 +174,11 @@ plt.show()
 Plots of graphs
 """
 """
-sns.barplot(x=ld.class_col,y=losses)
-plt.title('Auto-encoder-anomaly-detection-Average-loss')
+ax=sns.barplot(x=ld.class_col,y=losses)
+ax.set_xticklabels(['Legal transactions','Fraud transactions'])
+plt.title('Auto-encoder-anomaly-detection-Average-loss \n Zscore normalization \n Three epochs')
 plt.ylabel('Average loss')
 plt.show()
-print(auto_for_dimensions(new_arr, n_cluster, savefig=1, name_of_fig="auto encoder"))
 """
 
 
