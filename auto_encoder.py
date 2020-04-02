@@ -7,20 +7,18 @@ from numpy import linspace,array
 import seaborn as sns
 import load_data as ld
 import matplotlib.pyplot as plt
-from sklearn.neighbors.kde import KernelDensity
-from sklearn.cluster import KMeans
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from sklearn.ensemble import IsolationForest
 from sklearn.metrics import confusion_matrix
-
+import visualization
 
 normalized_data=ld.zscore_norm(ld.data)
 # Transform the 0-1 labels to 1-(-1) labels because of the Isolation forest
 anomaly_labels=ld.class_col.apply(lambda x: -2*x+1)
 vector_size=len(ld.data.columns)
 lr=0.001
-n_epochs=3
+n_epochs=1
 # The neural net that will preform the auto-encoding
 class autoencoder(nn.Module):
     def __init__(self, vector_size):
@@ -43,10 +41,11 @@ class autoencoder(nn.Module):
         input=self.decoder(input)
         return input
     
-    def Dimensions(self, input):
-        input=self.encoder(input)
-        return input
-
+    def new_representation(self, input):
+        input = torch.from_numpy(input.to_numpy()).float()
+        return self.encoder(input).detach().numpy()
+    def decompose(self,data):
+        return data.apply(self.new_representation,axis=1,result_type='expand')
 
 
 def make_train_step(model, loss_fn, optimizer):
@@ -68,36 +67,9 @@ def make_train_step(model, loss_fn, optimizer):
 
     # Returns the function that will be called inside the train loop
     return train_step
-def fitkde(X):
-    """fits a Kde to the one dimensional losses"""
-    a=array(X).reshape(-1, 1)
-    kde = KernelDensity(kernel='gaussian', bandwidth=3).fit(a)
-    s = linspace(0, max(X))
-    e = kde.score_samples(s.reshape(-1, 1))
-    plt.plot(s, e)
-    plt.show()
 
-def fitkmeans(X,n_clusters=3):
-    """fits a kmeans to the one dimensional losses"""
-    a=array(X).reshape(-1, 1)
-    kmeans=KMeans(n_clusters)
-    y_pred=kmeans.fit_predict(a)
-    sns.stripplot(y_pred,X,hue=ld.class_col)
-    plt.show()
 
-    
-def auto_for_dimensions(arr, n_cluster,savefig=0, name_of_fig=None):
-    fig_arr = np.zeros((len(ld.data), n_cluster))
-    for i in range(len(ld.data)):
-        for j in range(n_cluster):
-            fig_arr[i][j] = arr[i][j].float()
-    if savefig == 1:
-        fig = plt.figure()
-        ax = Axes3D(fig)
-        principalDf = fig_arr
-        ax.scatter(principalDf[:, 0], principalDf[:, 1], principalDf[:, 2], c=ld.class_col)
-        fig.savefig(name_of_fig)
-    return fig_arr
+
 
 
 """
@@ -143,11 +115,9 @@ train_step=make_train_step(model,criterion,optim.Adam(model.parameters(), lr=lr)
 losses = []
 #training the model on the whole data.
 for epoch in range(n_epochs):
-    new_arr = []
     print("in epoch "+str(epoch))
     for x in tensor_data:
         train_step(x,x)
-        new_arr.append(model.Dimensions(x))
 model.eval()
 for x in tensor_data:
     losses.append(criterion(model(x),x).item())
@@ -181,8 +151,29 @@ plt.ylabel('Average loss')
 plt.show()
 """
 
+"""Auto_encoder decomposition"""
 
+"""
+torch.manual_seed(1)
+model=autoencoder(vector_size)
+criterion = nn.MSELoss()
+tensor_data=torch.from_numpy(normalized_data.to_numpy()).float()
 
-
-
-
+train_step=make_train_step(model,criterion,optim.Adam(model.parameters(), lr=lr))
+#training the model on the whole data.
+for epoch in range(n_epochs):
+    print("in epoch "+str(epoch))
+    for x in tensor_data:
+        train_step(x,x)
+model.eval()
+print('dimension reduction began')
+dec_data=model.decompose(normalized_data)
+print(dec_data.shape)
+fig=plt.figure(figsize=(15,25))
+ax= visualization.scatterdDfVisualization(dec_data, fig, c=ld.class_col)
+ax.set_xlabel('First component')
+ax.set_ylabel('Second component')
+ax.set_zlabel('Third component')
+ax.set_title('3D Auto-encoder by class analysis \n Zscore normalization\n One epoch')
+plt.show()
+"""

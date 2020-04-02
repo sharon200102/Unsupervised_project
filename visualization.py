@@ -38,6 +38,7 @@ def dis_by_cat(data,col_name,cat_name,figsize,savefig=0,name_of_file=None):
       g.savefig(name_of_file)
   plt.tight_layout()
   plt.show()
+# Given three or two dimensional data, the function creates a scatter plot from the data. its possible to add **kwargs for the plotting function.
 def scatterdDfVisualization(df,fig,**kwargs):
     n_components=df.shape[1]
     if n_components == 3:

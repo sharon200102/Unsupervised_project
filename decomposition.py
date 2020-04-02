@@ -28,7 +28,7 @@ def importent_feat(dec_obj,orignal_data_columns):
 normalized_data=ld.minmax_norm(ld.data)
 dic_of_data=ld.divide_data(normalized_data,ld.class_col,{0:492,1:492})
 data_for_tsne,labels=ld.concatenate_data(dic_of_data)
-componentsDF=decompose(data_for_tsne,TSNE,3,random_state=1)[1]
+    componentsDF=decompose(data_for_tsne,TSNE,3,random_state=1)[1]
 fig=plt.figure()
 ax=scatterdDfVisualization(componentsDF,fig,c=labels)
 ax.set_xlabel('First component')

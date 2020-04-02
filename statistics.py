@@ -1,8 +1,10 @@
-import dataframe as df
 import pandas as pd
 import numpy as np
-
-
+from scipy import stats
+import load_data as ld
+import seaborn as sns
+import matplotlib.pyplot as plt
+THRESHOLD=0.05
 # the function gets vector that present a deal and a name of a column and return 1 if its deception and 0 if its not
 def is_decption(vec, name):
     if vec[name] == 0:
@@ -41,4 +43,30 @@ def amount_cov(dataset, name):
 def corr(data):
     df = data.corr()
     return df.min(), df[df < 1].max()
+# The function performs a T test between  two dataframes (column by column) and returns a list of results.
+def TtestDf(df1,df2):
+    columns=df1.columns
+    l=[]
+    #Iterate through all columns.
+    for col in columns:
+        l.append(stats.ttest_ind(df1[col],df2[col], equal_var=False)[1])
+    return l
+"""----T_test----"""
+"""
+fraud=ld.data[ld.class_col==1]
+legal=ld.data[ld.class_col==0]
+p_value_list=TtestDf(fraud,legal)
+print(p_value_list)
+fig,ax=plt.subplots(figsize=(20,20))
+sns.barplot(ld.data.columns,p_value_list,ax=ax)
+ax.axhline(y=THRESHOLD,linewidth=1, color='r',ls='--',label='P = 0.05')
+ax.set_title('P values of T test between columns of frauds and legal transactions \n Some bars are missing due to a '
+             'very small P value') 
+ax.set_ylabel('P values')
+ax.set_xlabel('Column names')
+plt.legend()
+plt.tight_layout()
+plt.show()
+"""
+
 
